@@ -5,6 +5,8 @@
 - [Hackathon](#hackathon)
   - [Ideation](#ideation)
   - [Requirements elicitation](#requirements-elicitation)
+    - [Define stakeholders](#define-stakeholders)
+    - [Write requirements](#write-requirements)
   - [Planning](#planning)
   - [Implementation](#implementation)
     - [Proof of concept](#proof-of-concept)
@@ -42,11 +44,7 @@ Pen and paper quiz.
 
 ## Hackathon
 
-During the hackathon, each student:
-
-- Works individually.
-- Builds their own project.
-- Goes from idea to a deployed product.
+Each student goes from own idea to own deployed product.
 
 Tasks:
 
@@ -55,6 +53,10 @@ Tasks:
 2. [Planning](#planning)
 3. [Implementation](#implementation)
 4. [Delivery](#delivery)
+
+> [!NOTE]
+>
+> We simplify definitions because you'll study these concepts more in-depth during the SWP course.
 
 ### Ideation
 
@@ -81,13 +83,41 @@ The product must have at least these components:
 Each component must:
 
 - Interact with at least one other component
-- Be necessary in solving the problem for end users
+- Be necessary for solving the end users' problem
 
 ### Requirements elicitation
 
-Write a list of prioritized functional requirements for your product.
+#### Define stakeholders
 
-For each requirement, specify unambiguous testable acceptance criteria.
+A stakeholder is a person affected by the project.
+
+List all stakeholders of your project (including yourself).
+
+During the hackathon, assume that end users are your main stakeholders and focus on them.
+
+#### Write requirements
+
+A requirement is a testable statement about the project.
+
+Each satisfied requirement makes the product more valuable to particular stakeholders.
+
+Write a list of user stories for the main product features.
+
+A user story specifies:
+
+1. The persona who wants the feature
+2. What the feature is
+3. Which value the feature brings to the persona
+  
+> 🟪 **Example**
+>
+> As a DevOps team member,
+>
+> I want the chatbot to answer questions about logs and traces
+>
+> so that I can analyze incidents without writing `LogsQL` by hand
+
+Prioritize the user stories focusing on the end users.
 
 ### Planning
 
@@ -102,13 +132,32 @@ For each each product version, specify which requirements will be covered in it:
 
 #### Proof of concept
 
-Prove that your idea can work when implemented in software.
+Perform the minimal work to prove that your idea is technically feasible.
 
-Tip: use `Build` in `Google AI Studio`.
+The sooner you learn what doesn't work, the less work you spend uselessly.
+
+> **Example**
+>
+> If you want to develop a Telegram bot, check that the simplest bot works when hosted on the University VM.
 
 #### Prototype
 
-Implement enough to see how the product will look like and feel and where it can fail.
+Implement an interactive prototype to learn how the product will look like and feel and which parts can break the user experience.
+
+> 🟪 **Example**
+>
+> If you want to develop a chatbot, add support for main scenarios of end user's interaction with the chatbot.
+>
+> E.g., add buttons and minimal logic to handle clicks on these buttons.
+>
+> Use mocks to simplify the implementation.
+
+> [!TIP]
+>
+> Use `Build` in `Google AI Studio`.
+
+> [!IMPORTANT]
+> It's OK to throw the prototype away and design a new and better solution where you account for everything you learned.
 
 #### Minimal valuable product
 
@@ -122,8 +171,7 @@ Deploy the product so that it's accessible by course instructors and students fr
 
 <!-- no toc -->
 1. [Submit a presentation on `Moodle`](#submit-a-presentation-on-moodle)
-2. [Publish the product code in the repository on `GitHub`](#publish-the-product-code-in-the-repository-on-github)
-3. [Add `README.md` in the repository on `GitHub`](#add-readmemd-in-the-repository-on-github)
+2. [Publish the product code on `GitHub`](#publish-the-product-code-on-github)
 
 #### Submit a presentation on `Moodle`
 
