@@ -39,8 +39,8 @@ The product must have these components each fulfilling a useful function:
 
 #### Task 3 (approved by TA during the lab).
 Produce a plan including:
-- prioritized requirements;
-- a clear breakdown of requirements into **two product versions.**
+- prioritized features/functionality;
+- a clear breakdown of functionality into **two product versions.**
 
 About two product versions:
 - Version 1 is a functioning product that does one core thing well. Pick the feature most valuable to the end-user and relatively easy to implement.
