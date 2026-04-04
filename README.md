@@ -1,170 +1,275 @@
-# Lab 9 - Quiz and Hackathon
+# 🎭 Roman Trakhtenberg Jokes Bot
 
-The lab opens with a quiz and then kicks off the hackathon.
+Telegram bot that delivers jokes and quotes from Roman Trakhtenberg's comedy repertoire. Users receive random jokes and can rate them with 👍/👎 buttons.
 
-To get the full point for the lab, you need to:
+---
 
-- Pass Tasks 1, 2, 3 during the lab AND
-- Finish Tasks 4 and 5 by the usual deadline of Thursday 23:59.
+## Product Context
 
-Each student builds their own project:
+### End User
+- Admirers of humor and wit
+- Russian-speaking Telegram users
+- Fans of stand-up comedy and clever observations about life
 
-- Go from an idea to a deployed product.
-- Use agents and LLMs throughout.
+### Problem It Solves
+Provides instant access to a curated collection of Roman Trakhtenberg's jokes and quotes — no need to search through books or social media, just ask the bot for a joke.
 
-----
+### Our Solution
+A simple, elegant Telegram bot that:
+- Delivers random jokes on command
+- Categorizes jokes by themes (life, relationships, work, philosophy, etc.)
+- Allows users to rate jokes with inline buttons
+- Runs as a client that communicates with a FastAPI backend
 
-## Task 1 (graded by TA after the lab)
+---
 
-Pen and paper quiz:
+## Architecture
 
-- 20 mins;
-- closed book, no devices;
-- you get 3 random questions from the question bank;
-- answer at least 2.
+```
+┌──────────────┐     HTTP      ┌──────────────┐     PostgreSQL    ┌──────────┐
+│  Telegram    │ ◄──────────►  │  Backend     │ ◄──────────────►  │  VM DB   │
+│   Bot        │  API calls   │  FastAPI     │      queries      │ (5433)   │
+│  (aiogram)   │               │  (port 42020) │                   │          │
+└──────────────┘               └──────────────┘                   └──────────┘
+```
 
-## Task 2 (approved by TA during the lab)
+### Components
 
-Ideate and plan your project.
+| Component | Tech | Location |
+|-----------|------|----------|
+| **Client** (Telegram bot) | Python, aiogram | Runs locally / Docker |
+| **Backend API** | Python, FastAPI, SQLAlchemy | Docker on VM |
+| **Database** | PostgreSQL | Docker on VM |
 
-### Project idea
+### Backend API Endpoints
 
-The project idea must be:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/jokes/random` | Get a random joke |
+| `GET` | `/api/jokes/{id}` | Get a joke by ID |
+| `GET` | `/api/jokes/categories` | Get all categories |
+| `GET` | `/api/jokes/category/{name}` | Get a random joke from category |
+| `GET` | `/api/jokes/top` | Get top-rated jokes |
+| `POST` | `/api/jokes/{id}/rate` | Rate a joke (1 or -1) |
+| `GET` | `/api/stats` | Get statistics |
+| `POST` | `/api/jokes` | Add a new joke |
 
-- something simple to build;
-- clearly useful;
-- easy to explain.
+---
 
-Define and show to your TA:
+## Features
 
-- End-user of the product
-- What problem your product solves for the end-user?
-- The product idea in one short sentence.
-- What is the product's core feature?
+### Version 1 (Core)
+- ✅ `/start` — Welcome message
+- ✅ `/help` — List available commands
+- ✅ `/joke` — Get a random joke with rating buttons
+- ✅ Inline keyboard: 👍 / 👎 / Next joke
+- ✅ FastAPI backend with PostgreSQL
+- ✅ Docker containerization
+- ✅ Deployed on VM
 
-### Implementation plan
+### Version 2 (Enhanced)
+- ✅ Rating system persisted via PostgreSQL
+- ✅ One-click "Next joke" for quick browsing
+- ✅ Joke categories in backend API
+- ✅ API endpoint for adding new jokes
 
-When the idea is approved, produce a plan for two product versions.
+---
 
-Version 1 does one core thing well:
+## Project Structure
 
-- Pick the one feature most valuable to the end-user and relatively easy to implement;
-- It is a functioning product, not a prototype;
-- Must be shown to the TA upon completion for feedback.
+```
+se-toolkit-hackathon/
+├── .env.bot.secret           # Bot token + API URL (gitignored)
+├── .env.example              # Template for env vars
+├── .gitignore
+├── docker-compose.yml        # Orchestrates backend + bot + postgres
+├── LICENSE
+├── PLAN.md                   # Development plan
+├── README.md                 # This file
+├── backend/                  # FastAPI REST API
+│   ├── app/
+│   │   ├── main.py           # FastAPI app + routes
+│   │   ├── models.py          # SQLAlchemy models
+│   │   ├── database.py        # DB connection
+│   │   ├── crud.py            # Database CRUD
+│   │   ├── schemas.py         # Pydantic schemas
+│   │   └── seed.py            # Initial joke seeder
+│   ├── Dockerfile
+│   ├── entrypoint.sh          # Seed DB + start server
+│   └── pyproject.toml
+└── bot/                      # Telegram bot (aiogram)
+    ├── bot.py                 # Entry point
+    ├── config.py              # Settings
+    ├── Dockerfile
+    ├── pyproject.toml
+    ├── handlers/
+    │   └── commands.py        # Command handlers (pure functions)
+    └── services/
+        └── api.py             # HTTP client to backend API
+```
 
-Version 2 builds upon Version 1:
+---
 
-- Improves the initial feature or adds another one on top;
-- Address TA feedback from the lab;
-- Deploy and make it available for use.
+## Usage
 
-The product must have the following components, each fulfilling a useful function:
+### Local Development
 
-- backend;
-- database;
-- end-user-facing client: web app, mobile app, or LLM-powered agent, e.g. `nanobot`.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/boopEvdakov/se-toolkit-hackathon.git
+   cd se-toolkit-hackathon
+   ```
 
-Note:
+2. **Create environment file**
+   ```bash
+   cp .env.example .env.bot.secret
+   ```
+   Edit `.env.bot.secret`:
+   ```
+   BOT_TOKEN=your_telegram_bot_token_from_BotFather
+   API_BASE_URL=http://localhost:42020
+   ```
 
-- You can use the setup from Lab 8 or start from scratch.
-- `Telegram` bots are blocked on university VMs.
+3. **Run bot in test mode**
+   ```bash
+   cd bot
+   uv run bot.py --test "/joke"
+   uv run bot.py --test "/start"
+   uv run bot.py --test "/help"
+   ```
 
-## Task 3 (approved by TA during the lab)
+4. **Run the bot**
+   ```bash
+   cd bot
+   uv run bot.py
+   ```
 
-Implement Version 1 outlined in the plan:
+### Available Bot Commands
 
-- Build one core feature;
-- Follow best practices and git workflow;
-- Test it yourself and fix bugs;
-- Have the TA try it as a user;
-- Take note of the TA feedback;
-- Get TA's approval for the task to be marked as DONE.
+| Command | Description |
+|---------|-------------|
+| `/start` | Welcome message with inline buttons |
+| `/help` | Show available commands |
+| `/joke` | Get a random joke with rating buttons |
 
-## Task 4
+### Inline Buttons
 
-Implement and deploy Version 2 outlined in the plan:
+| Button | Action |
+|--------|--------|
+| 👍 Нравится | Like the joke |
+| 👎 Не нравится | Dislike the joke |
+| 🎭 Ещё шутку | Get another random joke |
+| ❓ Помощь | Show help |
 
-- Build and polish functionality;
-- Take TA feedback into account;
-- Push all code to the GitHub repo (see the detailed instructions below);
-- Follow best practices and git workflow;
-- Document your solution;
-- Dockerize all services;
-- Deploy it to be accessible to use.
+---
 
-Version 2 can be completed during the lab or after it, before the usual deadline.
+## Deployment
 
-## Task 5 (demo and PDF submitted through Moodle)
+### VM Requirements
 
-Submit a presentation with five slides:
+- **OS:** Ubuntu 24.04
+- **Docker** and **Docker Compose** installed
+- SSH access for deployment
+- Firewall configured (only necessary ports open)
 
-1. Title:
+### Deployment Steps
 
-   - Product title
-   - Your name
-   - Your university email
-   - Your group
+1. **Connect to VM**
+   ```bash
+   ssh user@your-vm-ip
+   ```
 
-2. Context:
+2. **Install Docker (if not installed)**
+   ```bash
+   sudo apt update
+   sudo apt install -y docker.io docker-compose-plugin
+   sudo usermod -aG docker $USER
+   ```
 
-   - End-user of the product
-   - What problem your product solves
-   - The product idea in one short sentence
+3. **Clone the repository**
+   ```bash
+   git clone https://github.com/boopEvdakov/se-toolkit-hackathon.git
+   cd se-toolkit-hackathon
+   ```
 
-3. Implementation:
+4. **Configure environment**
+   ```bash
+   nano .env.bot.secret
+   ```
+   Content:
+   ```
+   BOT_TOKEN=your_bot_token_here
+   API_BASE_URL=http://jokes-backend:8000
+   ```
 
-   - How you built the product
-   - What went into Version 1 and Version 2
-   - What TA feedback points you addressed
+5. **Build and start**
+   ```bash
+   docker compose up -d --build
+   ```
 
-4. Demo:
+6. **Verify services**
+   ```bash
+   docker compose ps
+   docker compose logs -f jokes-backend
+   docker compose logs -f jokes-bot
+   ```
 
-   - Pre-recorded video demonstration of Version 2 with voice-over (no longer than 2 minutes).
-   - _Note:_ **This is the most important part of the presentation**.
+7. **Stop services**
+   ```bash
+   docker compose down
+   ```
 
-5. Links:
+### Docker Compose Services
 
-   - Link and QR code for each of these:
-     - The GitHub repo with the product code
-     - Deployed product (latest version)
+| Service | Image | Ports | Description |
+|---------|-------|-------|-------------|
+| `postgres` | postgres:18.3-alpine | 5433:5432 | PostgreSQL database |
+| `jokes-backend` | Custom build | 42020:8000 | FastAPI backend |
+| `jokes-bot` | Custom build | — | Telegram bot |
 
-----
+---
 
-## Publishing the product code on GitHub
+## Adding New Jokes
 
-- Publish the product code in a repository on `GitHub`.
+### Via API
 
-  The repository must be called `se-toolkit-hackathon`.
+```bash
+curl -X POST http://your-vm-ip:42020/api/jokes \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Your joke text here", "category": "life"}'
+```
 
-- Add the MIT license file to make your product open-source.
+### Via Code
 
-- Add `README.md` in the product repository.
+Edit `backend/app/seed.py` and add jokes to `JOKES_DATA`:
 
-  `README.md` structure:
+```python
+{
+    "id": 11,
+    "text": "Your joke text here",
+    "category": "life",
+},
+```
 
-  - Product name (as title)
+Then rebuild the backend container.
 
-  - One-line description
+---
 
-  - Demo:
-    - A couple of relevant screenshots of the product
+## Tech Stack
 
-  - Product context:
+| Layer | Technology |
+|-------|-----------|
+| **Language** | Python 3.12+ |
+| **Telegram framework** | aiogram 3.20+ |
+| **Backend framework** | FastAPI |
+| **ORM** | SQLAlchemy |
+| **Database** | PostgreSQL 18 |
+| **HTTP client** | httpx |
+| **Containerization** | Docker + Docker Compose |
+| **Package manager** | uv |
 
-    - End users
-    - Problem that your product solves for end users
-    - Your solution
+---
 
-  - Features:
+## MIT License
 
-    - Implemented and not yet implemented features
-
-  - Usage:
-
-    - Explain how to use your product
-
-  - Deployment:
-
-    - Which OS the VM should run on (you may assume `Ubuntu 24.04` like on your university VMs)
-    - What should be installed on the VM
-    - Step-by-step deployment instructions
+This project is open-source. See the [LICENSE](LICENSE) file for details.

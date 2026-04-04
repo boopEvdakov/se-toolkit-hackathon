@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:18.3-alpine
+    container_name: jokes-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: jokes_db
+      POSTGRES_USER: jokes_user
+      POSTGRES_PASSWORD: jokes_pass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jokes_user -d jokes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  jokes-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: jokes-backend
+    restart: unless-stopped
+    ports:
+      - "42020:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://jokes_user:jokes_pass@postgres:5432/jokes_db
+
+  jokes-bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: jokes-bot
+    restart: unless-stopped
+    depends_on:
+      - jokes-backend
+    env_file:
+      - .env.bot.secret
+    environment:
+      - API_BASE_URL=http://jokes-backend:8000
+
+volumes:
+  postgres-data:
+    driver: local
