@@ -5,91 +5,115 @@ This document outlines the implementation plan for the Roman Trakhtenberg jokes 
 ## Project Overview
 
 ### End-user
-- People who enjoy humor, stand-up comedy, and Roman Trakhtenberg's witty observations about life
-- Russian-speaking Telegram users looking for quick entertainment
+- Admirers of humor and wit
+- Russian-speaking Telegram users
+- Fans of stand-up comedy and clever observations about life
 
 ### Problem it solves
 - Provides instant access to a curated collection of Roman Trakhtenberg's jokes and quotes
-- No need to search through books or social media - just ask the bot for a joke
+- No need to search through books or social media — just ask the bot for a joke
 
 ### Product idea in one sentence
 A Telegram bot that delivers random jokes and quotes from Roman Trakhtenberg's comedy repertoire on demand.
 
 ### Core feature
-- Send a command or message → get a random Trakhtenberg joke
-- Categorization by themes (life, relationships, work, philosophy, etc.)
-- Favorite jokes saving feature
+Send a command → get a random Trakhtenberg joke with inline rating buttons (👍/👎).
+
+### Additional features
+- Rating system persisted via PostgreSQL
+- One-click "Next joke" for quick browsing
+- Joke categorization by theme (life, relationships, work, etc.)
+- API endpoint for adding new jokes
 
 ## Architecture
 
-The bot follows a layered architecture:
+The project follows a 3-tier architecture:
 
-1. **Transport Layer** (`bot.py`) — Handles Telegram API communication via aiogram
-2. **Handler Layer** (`handlers/`) — Pure functions that process commands and return responses
-3. **Service Layer** (`services/`) — Joke database and retrieval logic
+```
+┌──────────────┐     HTTP      ┌──────────────┐     PostgreSQL    ┌──────────┐
+│  Telegram    │ ◄──────────►  │  Backend     │ ◄──────────────►  │  VM DB   │
+│   Bot        │  API calls   │  FastAPI     │      queries      │          │
+│  (aiogram)   │               │  (port 42020) │                   │          │
+└──────────────┘               └──────────────┘                   └──────────┘
+```
+
+### Components
+
+| Component | Tech | Location |
+|-----------|------|----------|
+| **Client** (Telegram bot) | Python, aiogram | Docker container |
+| **Backend API** | Python, FastAPI, SQLAlchemy | Docker container on VM |
+| **Database** | PostgreSQL 18 | Docker container on VM |
+
+### Layered Architecture (Bot)
+
+1. **Transport Layer** (`bot.py`) — Telegram API communication via aiogram
+2. **Handler Layer** (`handlers/`) — Pure functions, testable without Telegram
+3. **Service Layer** (`services/api.py`) — HTTP client to backend API
 4. **Configuration** (`config.py`) — Environment variable loading
-
-This separation ensures handlers are testable without Telegram connectivity.
 
 ## Version 1 (Core Product)
 
-**Goal:** Working bot that delivers random Trakhtenberg jokes.
+**Goal:** Working bot with backend and database.
 
 Features:
-- `/start` — Welcome message
-- `/help` — List available commands
-- `/joke` — Get a random joke
-- `/category <name>` — Get a joke from a specific category
-- Built-in joke database (JSON file)
-- CLI test mode for development
-- Docker containerization
+- ✅ `/start` — Welcome message
+- ✅ `/help` — List available commands
+- ✅ `/joke` — Get a random joke with rating buttons
+- ✅ FastAPI backend with PostgreSQL database
+- ✅ Inline keyboard: 👍 / 👎 / 🎭 Next joke
+- ✅ Docker Compose orchestration
+- ✅ Deployed on VM
 
 **Success criteria:**
-- Bot responds to commands
-- Random joke delivery works
-- Categories work correctly
-- Bot runs in Docker
+- ✅ Bot responds to /start and /joke
+- ✅ Backend returns jokes from PostgreSQL
+- ✅ Rating buttons update the message with new count
 
 ## Version 2 (Enhanced)
 
-**Goal:** Improved user experience and additional features.
+**Goal:** Improved user experience and deployed product.
 
 Features:
-- "Add to favorites" — Save jokes via inline button
-- `/favorites` — View saved jokes
-- "Next joke" inline keyboard button for quick browsing
-- LLM-powered natural language search (ask for jokes about specific topics)
-- Joke rating system
-- Statistics (total jokes, most popular categories)
-- Deployed and accessible
+- ✅ Rating system persisted via PostgreSQL (one vote per user per joke)
+- ✅ API endpoints for categories, top jokes, stats
+- ✅ Polished README with full documentation
+- ✅ Pushed to GitHub repository
+- ✅ Dockerized all services
+- ✅ Deployed on VM (Ubuntu 24.04)
 
 ## Implementation Strategy
 
 ### Phase 1: Foundation (Version 1)
-1. Create project structure
-2. Build joke database service with ~50+ jokes
-3. Implement command handlers
-4. Add CLI test mode
-5. Containerize with Docker
+1. Create project structure (backend + bot)
+2. Build FastAPI backend with PostgreSQL
+3. Seed database with initial jokes
+4. Implement Telegram bot with aiogram
+5. Containerize with Docker Compose
 
 ### Phase 2: Enhancement (Version 2)
-1. Add favorites system (SQLite database)
-2. Implement inline keyboards
-3. Add LLM-powered search
-4. Deploy to VM
-5. Create documentation and demo video
+1. Add rating system with inline buttons
+2. Add API endpoints for top jokes, categories, stats
+3. Deploy to VM via Docker Compose
+4. Create documentation (README + PLAN)
+5. Push to GitHub
 
 ## Testing Strategy
 
-1. **Unit tests** — Test handlers in isolation (pytest)
-2. **Test mode** — Manual verification via `--test` flag
-3. **Integration tests** — Test with real joke database
+1. **CLI test mode** — `uv run bot.py --test "/joke"` for manual testing
+2. **Integration tests** — Bot talks to real backend API
+3. **API tests** — Direct curl to backend endpoints
 4. **Deployment verification** — Send commands via Telegram
 
 ## Technical Stack
 
-- **Language:** Python 3.14+
-- **Telegram framework:** aiogram 3.20+
-- **Database:** JSON file (V1) → SQLite (V2)
-- **Containerization:** Docker + docker-compose
-- **LLM integration:** Optional (for V2 natural language search)
+| Layer | Technology |
+|-------|-----------|
+| **Language** | Python 3.12+ |
+| **Telegram framework** | aiogram 3.20+ |
+| **Backend framework** | FastAPI |
+| **ORM** | SQLAlchemy |
+| **Database** | PostgreSQL 18 |
+| **HTTP client** | httpx |
+| **Containerization** | Docker + Docker Compose |
+| **Package manager** | uv |
