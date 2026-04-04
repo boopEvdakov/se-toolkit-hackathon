@@ -1,4 +1,3 @@
-![Uploading image.png…]()
 # 🎭 Roman Trakhtenberg Jokes Bot
 
 Telegram bot that delivers jokes and quotes from Roman Trakhtenberg's comedy repertoire. Users receive random jokes and can rate them with 👍/👎 buttons.
