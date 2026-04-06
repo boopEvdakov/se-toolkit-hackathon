@@ -2,7 +2,7 @@
 
 Telegram bot that delivers jokes and quotes from Roman Trakhtenberg's comedy repertoire. Users receive random jokes and can rate them with 👍/ buttons.
 
-![Demo](screenshots/demo.png)
+![Web Client](screenshots/web-client.png)
 
 ---
 
