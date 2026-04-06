@@ -33,6 +33,17 @@ services:
     environment:
       - DATABASE_URL=postgresql://jokes_user:jokes_pass@postgres:5432/jokes_db
 
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: jokes-client
+    restart: unless-stopped
+    ports:
+      - "42019:80"
+    depends_on:
+      - jokes-backend
+
   jokes-bot:
     build:
       context: ./bot
