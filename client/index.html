@@ -100,6 +100,14 @@
 
         let currentJokeId = null;
 
+        // Generate unique numeric user ID for web session
+        let webUserId = localStorage.getItem('webUserId');
+        if (!webUserId) {
+            const hash = Math.floor(Math.random() * 1000000000);
+            webUserId = hash;
+            localStorage.setItem('webUserId', hash);
+        }
+
         async function getRandomJoke() {
             const loading = document.getElementById('loading');
             const content = document.getElementById('joke-content');
@@ -140,7 +148,7 @@
                 const response = await fetch(`${API_URL}/jokes/${currentJokeId}/rate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ telegram_user_id: 0, rating: rating })
+                    body: JSON.stringify({ telegram_user_id: webUserId, rating: rating })
                 });
 
                 if (!response.ok) throw new Error('API error');
